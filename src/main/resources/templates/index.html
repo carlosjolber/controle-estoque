@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventário Suporte GTI</title>
+
+<link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="icofont/icofont.min.css">
+</head>
+
+<body class="bg-body-secondary">
+
+	<header class="text-bg-light p-3 shadow-sm">
+		<div class="container d-flex justify-content-between">
+			<h4>Suporte GTI</h4>
+			<button type="button" class="btn btn-primary" data-bs-toggle="modal"
+				data-bs-target="#adicionarProdutoModal">Cadastrar Produto</button>
+		</div>
+	</header>
+
+	<section>
+		<div class="container p-4">
+			<div class="alert alert-dark text-center" role="alert">Controle de produtos e insumos solicitados</div>
+
+			<th:block th:if="${produtoCadastrado == true}">
+				<div class="container">
+					<div class="row d-flex justify-content-center">
+						<div class="col-12 col-lg-6">
+							<div class="alert alert-success alert-dismissible fade show"
+								role="alert">
+								Produto cadastrado com sucesso!
+								<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</th:block>
+
+			<form th:action="@{/}" method="get">
+				<div class="row d-flex justify-content-center">
+					<div class="col-sm-12 col-lg-7">
+						<div class="input-group mb-3">
+							<input type="text" name="produto" class="form-control"
+								placeholder="Pesquisar pelo produto"
+								aria-label="Recipient's username">
+							<button class="btn btn-primary" type="submit" id="button-addon2">Pesquisar</button>
+						</div>
+					</div>
+				</div>
+			</form>
+
+
+			<table class="table table-hover">
+				<thead class="text-center">
+					<tr>
+						<th scope="col">Data</th>
+						<th scope="col">Produto</th>
+						<th scope="col">Setor</th>
+						<th scope="col">Ação</th>
+					</tr>
+				</thead>
+
+				<tbody class="text-center">
+					<tr th:each="produto:${produtos}">
+						<td th:text="${#dates.format(produto.data, 'dd/MM/yyyy')}"></td>
+						<td th:text="${produto.produto}"></td>
+						<td th:text="${produto.setor}"></td>
+						<td>
+							<!-- Button trigger modal -->
+							<button type="button" class="btn btn-primary btn-sm"
+								data-bs-toggle="modal"
+								th:attr="data-bs-target='#exampleModal'+${produto.codigo}">Visualizar</button>
+
+							<!-- Modal -->
+							<div class="modal fade" th:id="exampleModal+${produto.codigo}"
+								tabindex="-1" aria-labelledby="exampleModalLabel"
+								aria-hidden="true">
+								<div class="modal-dialog modal-xl modal-dialog-centered">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h1 class="modal-title fs-5" id="exampleModalLabel">Produto</h1>
+											<button type="button" class="btn-close"
+												data-bs-dismiss="modal" aria-label="Close"></button>
+										</div>
+
+										<div class="modal-body">
+											<form method="post" action="#"
+												th:action="@{/atualizarProduto}">
+												<div class="row">
+
+													<input type="hidden" name="codigo"
+														th:value="${produto.codigo}" class="form-control">
+
+													<div class="col-5">
+														<div class="mb-3">
+															<label for="data" class="form-label">Data:</label> <input
+																type="date" name="data"
+																th:value="${#dates.format(produto.data, 'yyyy-MM-dd')}"
+																class="form-control" id="data">
+														</div>
+													</div>
+
+													<div class="col-7">
+														<div class="mb-3">
+															<label for="produto" class="form-label">Produto:</label>
+															<input type="text" name="produto"
+																th:value="${produto.produto}" class="form-control"
+																id="data">
+														</div>
+													</div>
+
+													<div class="col-3">
+														<div class="mb-3">
+															<label for="quantidade" class="form-label">Quantidade:</label>
+															<input type="number" name="quantidade"
+																th:value="${produto.quantidade}" class="form-control"
+																id="quantidade">
+														</div>
+													</div>
+
+													<div class="col-9">
+														<div class="mb-3">
+															<label for="setor" class="form-label">Setor:</label> <input
+																type="text" name="setor" th:value="${produto.setor}"
+																class="form-control" id="setor">
+														</div>
+													</div>
+
+													<div class="row">
+														<div class="col">
+															<div class="mb-3">
+																<label for="descricao" class="form-label">Descrição:</label>
+																<textarea class="form-control" name="descricao"
+																	th:text="${produto.descricao}" id="descricao" rows="3"></textarea>
+															</div>
+														</div>
+													</div>
+												</div>
+
+												<div class="modal-footer d-flex justify-content-center">
+													<input type="submit" value="Atualizar informações"
+														class="btn btn-outline-primary"> <a
+														th:href="@{/deletarProduto?codigo={codigo}(codigo=${produto.codigo})}"
+														class="btn btn-outline-primary">Deletar produto</a>
+												</div>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div> <!-- Modal -->
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="d-flex justify-content-center pt-4">
+				<nav aria-label="...">
+					<ul class="pagination">
+						<th:block th:if="${totalPaginas > 1}">
+							<li class="page-item" aria-current="page"><a
+								th:class="${paginaAtual}+1 > 1 ? 'page-link' : 'page-link disabled'"
+								th:text="Anterior" th:href="@{/(numeroPagina=${paginaAtual})}"></a>
+							</li>
+						</th:block>
+						<th:block th:if="${totalPaginas > 0}">
+							<li class="page-item"
+								th:each="numeroPagina : ${#numbers.sequence(1, totalPaginas)}"
+								aria-current="page"><a
+								th:class="${paginaAtual}+1 == ${numeroPagina} ? 'page-link active' : 'page-link'"
+								th:text="${numeroPagina}"
+								th:href="@{/(numeroPagina=${numeroPagina})}"></a></li>
+						</th:block>
+						<th:block th:if="${totalPaginas > 1}">
+							<li class="page-item" aria-current="page"><a
+								th:class="${paginaAtual}+2 > ${totalPaginas} ? 'page-link disabled' : 'page-link'"
+								th:text="Próximo" th:href="@{/(numeroPagina=${paginaAtual}+2)}"></a>
+							</li>
+						</th:block>
+					</ul>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Modal -->
+		<div class="modal fade" th:id="adicionarProdutoModal" tabindex="-1"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Produto</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+
+					<div class="modal-body">
+						<form method="post" th:action="@{/adicionarProduto}">
+							<div class="row">
+								<div class="col-5">
+									<div class="mb-3">
+										<label for="data" class="form-label">Data:</label> <input
+											type="date" name="data" class="form-control" id="data">
+									</div>
+								</div>
+
+								<div class="col-7">
+									<div class="mb-3">
+										<label for="produto" class="form-label">Produto:</label> <input
+											type="text" name="produto" class="form-control" id="data">
+									</div>
+								</div>
+
+								<div class="col-3">
+									<div class="mb-3">
+										<label for="quantidade" class="form-label">Quantidade:</label>
+										<input type="number" name="quantidade" class="form-control"
+											id="quantidade">
+									</div>
+								</div>
+
+								<div class="col-9">
+									<div class="mb-3">
+										<label for="setor" class="form-label">Setor:</label> <input
+											type="text" name="setor" class="form-control" id="setor">
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col">
+										<div class="mb-3">
+											<label for="descricao" class="form-label">Descrição:</label>
+											<textarea class="form-control" name="descricao"
+												id="descricao" rows="3"></textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="d-flex justify-content-center">
+								<input type="submit" value="Cadastrar Produto"
+									class="btn btn-outline-primary">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal -->
+
+		<th:block th:if="${produtoPesquisado == false && totalPaginas == 0}">
+			<div class="container">
+				<div class="row d-flex justify-content-center">
+					<div class="col-12 col-lg-6">
+						<div class="alert alert-secondary my-5 shadow" role="alert">
+							<h4 class="text-center">Inventário</h4>
+							<hr>
+							<p class="text-center">Para realizar o controle de produtos e
+								insumos do setor. Faça o cadastro de item por item. Desta forma,
+								você mantém um registro de qualquer equipamento que tenha sido
+								enviado para um setor.</p>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</th:block>
+
+		<th:block th:if="${produtoPesquisado == true && totalPaginas == 0}">
+			<div class="container">
+				<div class="row d-flex justify-content-center">
+					<div class="col-12 col-lg-6">
+						<div class="alert alert-warning my-5 shadow" role="alert">
+							<h4 class="text-center">Produto não encontrado</h4>
+							<hr>
+							<p class="text-center">Informe o nome completo do produto a
+								ser pesquisado no sistema. Caso não encontre, o registro não
+								existe no sistema.</p>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</th:block>
+
+
+	</section>
+
+
+
+
+
+	<script src="css/bootstrap/js/bootstrap.bundle.js"></script>
+	<script src="css/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

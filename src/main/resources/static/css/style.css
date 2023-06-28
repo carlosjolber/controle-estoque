@@ -1,0 +1,13 @@
+section {
+	height: calc(100vh - 100%)
+}
+
+@media ( max-width :570px) {
+	section table thead tr th:nth-child( 1 ), section table tbody tr td:nth-child( 1 ) {
+		display: none;
+	}
+	
+	section table thead tr th:nth-child( 3 ), section table tbody tr td:nth-child( 3 ) {
+		display: none;
+	}
+}
